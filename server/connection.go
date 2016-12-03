@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -18,8 +19,15 @@ const (
 // Person is ...
 type Person struct {
 	ID        bson.ObjectId `json:"-" bson:"_id,omitempty"`
-	Timestamp string        `json:"Timestamp" bson:"Timestamp"`
-	Accel     Accelerometer `json:"Accelerometer" bson:"Accelerometer"`
+	Gps       Gps           `json:"gps" bson:"gps"`
+	Accel     Accelerometer `json:"accel" bson:"accel"`
+	Timestamp time.Time     `json:"time" bson:"time"`
+}
+
+// Gps is ...
+type Gps struct {
+	Lat float64 `json:"lat" bson:"lat"`
+	Lgt float64 `json:"lgt" bson:"lgt"`
 }
 
 // Accelerometer is ...
