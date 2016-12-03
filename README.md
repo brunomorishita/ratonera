@@ -1,7 +1,7 @@
 # ratonera
 make Transportation great again
 
-![alt tag](http://github.com/brunomorishita/ratonera/res/raton.jpg)
+![alt tag](https://github.com/brunomorishita/ratonera/blob/master/res/raton.jpg)
 
 ### Installation
     go get github.com/gorilla/websocket
