@@ -6,5 +6,3 @@ make Transportation great again
     go get github.com/gorilla/brunomorishita/ratonera
     cd $GOPATH/github.com/gorilla/brunomorishita/ratonera
     go build server.go
-
-### Installation
