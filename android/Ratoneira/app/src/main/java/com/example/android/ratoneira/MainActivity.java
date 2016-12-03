@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.view.View;
+import android.widget.Toast;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -93,11 +94,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private void sendWebsocketMessage(){}
+    private void sendWebsocketMessage(String message){
+        if(mWebSocketClient.getConnection().isOpen()){
+            mWebSocketClient.send(message);
+        }else {
+            Toast.makeText(MainActivity.this,
+                    "Websocket connection is closed", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public void sendMessage(View view) {
         EditText editText = (EditText)findViewById(R.id.message);
-        mWebSocketClient.send(editText.getText().toString());
+        sendWebsocketMessage(editText.getText().toString());
         editText.setText("");
     }
 
@@ -128,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (speed > SHAKE_THRESHOLD) {
                     SensorsData d = new SensorsData(new Date(), x, y, z);
                     String json = JsonUtil.toJSon(d);
-                    mWebSocketClient.send(json);
+                    sendWebsocketMessage(json);
                 }
 
                 last_x = x;
@@ -143,4 +151,3 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 }
-
