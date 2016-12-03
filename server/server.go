@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brunomorishita/ratonera"
+	"github.com/brunomorishita/ratonera/server"
 )
 
 var addr = flag.String("addr", "192.168.1.6:8080", "http service address")
