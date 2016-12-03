@@ -1,15 +1,49 @@
 package ratonera
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gorilla/websocket"
 )
 
+const (
+	testDatabase = "goinggo"
+)
+
+// Person is ...
+type Person struct {
+	ID        bson.ObjectId `json:"-" bson:"_id,omitempty"`
+	Timestamp string        `json:"Timestamp" bson:"Timestamp"`
+	Accel     Accelerometer `json:"Accelerometer" bson:"Accelerometer"`
+}
+
+// Accelerometer is ...
+type Accelerometer struct {
+	Z float64 `json:"z" bson:"z"`
+	Y float64 `json:"y" bson:"y"`
+	X float64 `json:"x" bson:"x"`
+}
+
 // Connection is ...
 type Connection struct {
 	upgrader websocket.Upgrader
+	session  *mgo.Session
+}
+
+func getSession() *mgo.Session {
+	// Connect to our local mongo
+	s, err := mgo.Dial("mongodb://localhost")
+
+	// Check if connection error, is mongo running?
+	if err != nil {
+		panic(err)
+	}
+	return s
 }
 
 // NewConnection is ...
@@ -19,11 +53,15 @@ func NewConnection() Connection {
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
-		}}}
+		}},
+		session: getSession()}
 }
 
 // HandleWebsocket connection.
 func (conn Connection) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
+	// Collection People
+	dbCol := conn.session.DB(testDatabase).C("people")
+
 	c, err := conn.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
@@ -36,8 +74,25 @@ func (conn Connection) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 			log.Println("read:", err)
 			break
 		}
+
+		var record Person
+		err = json.Unmarshal(message, &record)
+
+		log.Print(record)
+
+		// Insert Datas
+		err = dbCol.Insert(record)
+		if err != nil {
+			log.Printf("shit happens in DB: %s", err.Error())
+		}
+
 		log.Printf("recv: %s", message)
-		err = c.WriteMessage(mt, message)
+
+		result := []Person{}
+		err = dbCol.Find(bson.M{}).All(&result)
+		j, _ := json.Marshal(result)
+
+		err = c.WriteMessage(mt, j)
 		if err != nil {
 			log.Println("write:", err)
 			break

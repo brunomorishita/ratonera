@@ -10,7 +10,7 @@ import (
 	"github.com/brunomorishita/ratonera"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "192.168.1.6:8080", "http service address")
 
 func main() {
 	flag.Parse()
