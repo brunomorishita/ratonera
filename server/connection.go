@@ -18,7 +18,7 @@ const (
 
 // Person is ...
 type Person struct {
-	ID        bson.ObjectId `json:"-" bson:"_id,omitempty"`
+	ID        string        `json:"id" bson:"id"`
 	Gps       Gps           `json:"gps" bson:"gps"`
 	Accel     Accelerometer `json:"accel" bson:"accel"`
 	Timestamp time.Time     `json:"time" bson:"time"`
