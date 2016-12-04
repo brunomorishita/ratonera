@@ -34,15 +34,15 @@
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:hint="Message"
+            android:text="ws://192.168.1.6:8080/raton"
             android:inputType="textShortMessage|textMultiLine|textCapSentences"/>
 
         <Button
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_gravity="bottom"
-            android:text="Send"
-            android:onClick="sendMessage"/>
+            android:text="Connect"
+            android:onClick="connect"/>
 
     </LinearLayout>
 </LinearLayout>

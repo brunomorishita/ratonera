@@ -1,28 +1,37 @@
 package com.example.android.ratoneira;
 
-import java.util.Date;
 
 public class SensorsData {
 
-    private Date timestamp;
+    private long timestamp;
     private Accelerometer acc;
+    private GPS gps;
+    private String deviceId;
 
-    public SensorsData(Date timestamp, float acc_x, float acc_y, float acc_z) {
+    public SensorsData(String deviceId, long timestamp, float acc_x, float acc_y, float acc_z, int lat, int lgt) {
         this.timestamp = timestamp;
+        this.deviceId = deviceId;
 
         acc = new Accelerometer(acc_x, acc_y, acc_z);
        /* this.acc.setX(acc_x);
         this.acc.setY(acc_y);
         this.acc.setZ(acc_z);*/
+        gps = new GPS(lat, lgt);
     }
 
     public Accelerometer getAcc() {
         return acc;
     }
 
-    public Date getTimestamp() {
+    public GPS getGPS() {
+        return gps;
+    }
+
+    public long getTimestamp() {
         return timestamp;
     }
+
+    public String getDeviceId() {return deviceId; }
 
     // Accelerometer Data
     public class Accelerometer {
@@ -59,6 +68,25 @@ public class SensorsData {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+    }
+
+    public class GPS {
+        private int lat;
+        private int lgt;
+        // get and set
+
+        public float getLat() {
+            return lat;
+        }
+
+        public float getLgt() {
+            return lgt;
+        }
+
+        GPS(int lat, int lgt){
+            this.lat = lat;
+            this.lgt = lgt;
         }
     }
 }

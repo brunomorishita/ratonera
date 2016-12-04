@@ -12,16 +12,25 @@ public class JsonUtil {
         try {
             // Here we convert Java Object to JSON
             JSONObject jsonObj = new JSONObject();
-            jsonObj.put("Timestamp", data.getTimestamp()); // Set the first name/pair
+            jsonObj.put("id", data.getDeviceId());
+            jsonObj.put("time", data.getTimestamp()); // Set the first name/pair
 
             // and finally we add the phone number
             // In this case we need a json array to hold the java list
             SensorsData.Accelerometer acc = data.getAcc();
-            JSONObject accObj = new JSONObject();
-            accObj.put("x", acc.getX());
-            accObj.put("y", acc.getY());
-            accObj.put("z", acc.getZ());
-            jsonObj.put("Accelerometer", accObj);
+            JSONObject jobj = new JSONObject();
+            jobj.put("x", acc.getX());
+            jobj.put("y", acc.getY());
+            jobj.put("z", acc.getZ());
+            jsonObj.put("accel", jobj);
+
+            SensorsData.GPS gps = data.getGPS();
+            jobj = new JSONObject();
+            jobj.put("lat", gps.getLat());
+            jobj.put("lgt", gps.getLgt());
+            jsonObj.put("gps", jobj);
+
+
 
 /*            jsonObj.put("surname", data.getSurname());
 
