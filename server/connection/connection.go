@@ -43,9 +43,9 @@ type Connection struct {
 	collection *mgo.Collection
 }
 
-func getSession() *mgo.Session {
+func getSession(mongoServer string) *mgo.Session {
 	// Connect to our local mongo
-	s, err := mgo.Dial("mongodb://localhost")
+	s, err := mgo.Dial("mongodb://" + mongoServer)
 
 	// Check if connection error, is mongo running?
 	if err != nil {
@@ -55,14 +55,14 @@ func getSession() *mgo.Session {
 }
 
 // NewConnection is ...
-func NewConnection() Connection {
+func NewConnection(mongoServer string) Connection {
 	conn := Connection{upgrader: websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		}},
-		session: getSession(),
+		session: getSession(mongoServer),
 	}
 
 	conn.collection = conn.session.DB(testDatabase).C("people")

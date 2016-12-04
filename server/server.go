@@ -1,11 +1,15 @@
 package main
 
 import (
-	"flag"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
-	"github.com/brunomorishita/ratonera/server/connection"
+	// "github.com/brunomorishita/ratonera/server/connection"
+	"./connection"
 )
 
 func serveSingle(pattern string, filename string) {
@@ -14,15 +18,24 @@ func serveSingle(pattern string, filename string) {
 	})
 }
 
-var addr = flag.String("addr", ":8080", "http service address")
+type Configuration struct {
+	mongo string
+	port  int
+}
 
 func main() {
-	flag.Parse()
-	log.SetFlags(0)
-	conn := connection.NewConnection()
+	file, _ := os.Open("conf.json")
+	decoder := json.NewDecoder(file)
+	configuration := Configuration{}
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	conn := connection.NewConnection(configuration.mongo)
 	// serveSingle("/", "index.html")
 	http.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/raton", conn.HandleWebsocket)
 	http.HandleFunc("/getuserinfo", conn.GetUserInfo)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(configuration.port), nil))
 }
