@@ -1,4 +1,4 @@
-package ratonera
+package connection
 
 import (
 	"encoding/json"
@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/websocket"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	"github.com/gorilla/websocket"
 )
 
 const (

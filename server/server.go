@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -7,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/brunomorishita/ratonera/server"
+	"github.com/brunomorishita/ratonera/server/connection"
 )
 
 func serveSingle(pattern string, filename string) {
@@ -21,7 +19,7 @@ var addr = flag.String("addr", ":8080", "http service address")
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
-	conn := ratonera.NewConnection()
+	conn := connection.NewConnection()
 	// serveSingle("/", "index.html")
 	http.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/raton", conn.HandleWebsocket)
