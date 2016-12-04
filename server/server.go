@@ -16,7 +16,7 @@ func serveSingle(pattern string, filename string) {
 	})
 }
 
-var addr = flag.String("addr", "192.168.1.6:8080", "http service address")
+var addr = flag.String("addr", ":8080", "http service address")
 
 func main() {
 	flag.Parse()
