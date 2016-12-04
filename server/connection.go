@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
+	"strconv"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -16,12 +16,12 @@ const (
 	testDatabase = "goinggo"
 )
 
-// Person is ...
-type Person struct {
+// UserInfo is ...
+type UserInfo struct {
 	ID        string        `json:"id" bson:"id"`
 	Gps       Gps           `json:"gps" bson:"gps"`
 	Accel     Accelerometer `json:"accel" bson:"accel"`
-	Timestamp time.Time     `json:"time" bson:"time"`
+	Timestamp int64         `json:"time" bson:"time"`
 }
 
 // Gps is ...
@@ -39,8 +39,9 @@ type Accelerometer struct {
 
 // Connection is ...
 type Connection struct {
-	upgrader websocket.Upgrader
-	session  *mgo.Session
+	upgrader   websocket.Upgrader
+	session    *mgo.Session
+	collection *mgo.Collection
 }
 
 func getSession() *mgo.Session {
@@ -56,19 +57,22 @@ func getSession() *mgo.Session {
 
 // NewConnection is ...
 func NewConnection() Connection {
-	return Connection{upgrader: websocket.Upgrader{
+	conn := Connection{upgrader: websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		}},
-		session: getSession()}
+		session: getSession(),
+	}
+
+	conn.collection = conn.session.DB(testDatabase).C("people")
+
+	return conn
 }
 
 // HandleWebsocket connection.
 func (conn Connection) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
-	// Collection People
-	dbCol := conn.session.DB(testDatabase).C("people")
 
 	c, err := conn.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -77,33 +81,52 @@ func (conn Connection) HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 	for {
-		mt, message, err := c.ReadMessage()
+		_, message, err := c.ReadMessage()
 		if err != nil {
 			log.Println("read:", err)
 			break
 		}
 
-		var record Person
+		var record UserInfo
 		err = json.Unmarshal(message, &record)
 
 		log.Print(record)
 
 		// Insert Datas
-		err = dbCol.Insert(record)
+		err = conn.collection.Insert(record)
 		if err != nil {
 			log.Printf("shit happens in DB: %s", err.Error())
 		}
 
 		log.Printf("recv: %s", message)
-
-		result := []Person{}
-		err = dbCol.Find(bson.M{}).All(&result)
-		j, _ := json.Marshal(result)
-
-		err = c.WriteMessage(mt, j)
-		if err != nil {
-			log.Println("write:", err)
-			break
-		}
 	}
+}
+
+// GetUserInfo is ...
+func (conn Connection) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	log.Printf("echo getuser")
+
+	query := r.URL.Query()
+	//fmt.Println("Request to create datapoint is ", query)
+	id := query.Get("id")
+	lastUpdate := query.Get("last_update")
+
+	log.Printf("id: %s", id)
+	log.Printf("lastUpdate: %s", lastUpdate)
+
+	lastNum, err := strconv.ParseInt(lastUpdate, 10, 64)
+
+	// layout := "2006-01-02T15:04:05.000Z"
+	// t, err := time.Parse(layout, last_update)
+
+	result := []UserInfo{}
+	// err := conn.collection.Find(bson.M{"id": id, "time": bson.M{"$gte": lastUpdate}}).All(&result)
+	err = conn.collection.Find(bson.M{"time": bson.M{"$gte": lastNum}}).All(&result)
+	if err != nil {
+		log.Printf("shit happens in DB: %s", err.Error())
+	}
+
+	j, _ := json.Marshal(result)
+
+	w.Write(j)
 }

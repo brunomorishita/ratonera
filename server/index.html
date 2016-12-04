@@ -1,0 +1,46 @@
+<html>
+ <head>
+   <meta charset="utf-8"/>
+ </head>
+ <body>
+   <div id="map"></div>
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+   
+   <script>
+    var e = new Date().getTime();
+    console.log(e);
+     
+    $(document).ready(function() {
+        function loadData() {
+            $.get("getuserinfo?last_id=" + getParameterByName("id") + "&last_update="+ e, function(data, statusTxt) {
+                if(statusTxt == "success") {
+                    var d = JSON.parse(JSON.stringify(data));
+                    
+                    console.log(d);
+                    
+                    
+                }
+                if(statusTxt == "error")
+                    alert("Error downloading JSON data");
+            });
+        }
+        setInterval(loadData, 2000); 
+      });
+
+
+
+     function getParameterByName(name, url) {
+        if (!url) {
+          url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+   </script>
+ </body>
+</html>
