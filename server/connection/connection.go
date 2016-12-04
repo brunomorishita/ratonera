@@ -119,8 +119,7 @@ func (conn Connection) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// t, err := time.Parse(layout, last_update)
 
 	result := []UserInfo{}
-	// err := conn.collection.Find(bson.M{"id": id, "time": bson.M{"$gte": lastUpdate}}).All(&result)
-	err = conn.collection.Find(bson.M{"time": bson.M{"$gte": lastNum}}).All(&result)
+	err = conn.collection.Find(bson.M{"id": id, "time": bson.M{"$gte": lastNum}}).All(&result)
 	if err != nil {
 		log.Printf("shit happens in DB: %s", err.Error())
 	}
